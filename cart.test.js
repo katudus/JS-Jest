@@ -1,76 +1,125 @@
+jest.mock('./cartRepository', () => ({
+    getCartPrices: jest.fn()
+}));
+
+jest.mock('./notificationService', () => ({
+    sendPromoCoupon: jest.fn()
+}));
+
 const calculateCartTotal = require('./cart');
+const CartRepository = require('./cartRepository');
+const NotificationService = require('./notificationService');
 
 describe('Функция calculateCartTotal', () => {
 
-  // --- ПОЗИТИВНЫЕ СЦЕНАРИИ ---
-  describe('Позитивные сценарии (Успех)', () => {
-
-    test('Должна корректно считать сумму без автоскидки', () => {
-      const prices = [500, 100, 100];
-      const discount = 10;
-
-      const result = calculateCartTotal(prices, discount);
-
-      // (500 + 100 + 100) = 700 → -10% = 630
-      expect(result).toEqual({
-        status: 'success',
-        total: 630
-      });
+    beforeEach(() => {
+        jest.clearAllMocks();
     });
 
-    test('Должна корректно применять персональную и автоматическую скидки', () => {
-      const prices = [4000, 2000];
-      const discount = 10;
+    // --- ПОЗИТИВНЫЕ СЦЕНАРИИ ---
+    describe('Позитивные сценарии', () => {
 
-      const result = calculateCartTotal(prices, discount);
+        test('Корректный расчёт суммы без автоматической скидки и без уведомления', async () => {
+            CartRepository.getCartPrices.mockResolvedValue([500, 100, 100]);
 
-      // 6000 → -10% = 5400 → -5% = 5130
-      expect(result.total).toBe(5130);
+            const result = await calculateCartTotal(1, 10);
+
+            expect(result).toEqual({
+                status: 'success',
+                total: 630
+            });
+
+            expect(NotificationService.sendPromoCoupon).not.toHaveBeenCalled();
+        });
+
+        test('Применение персональной и автоматической скидок без отправки купона', async () => {
+            CartRepository.getCartPrices.mockResolvedValue([4000, 2000]);
+
+            const result = await calculateCartTotal(1, 10);
+
+            expect(result.total).toBe(5130);
+            expect(NotificationService.sendPromoCoupon).not.toHaveBeenCalled();
+        });
+
+        test('Отправка купона при сумме больше 10 000 рублей', async () => {
+            CartRepository.getCartPrices.mockResolvedValue([6000, 6000]);
+
+            const result = await calculateCartTotal(42, 0);
+
+            expect(result.total).toBeGreaterThan(10000);
+            expect(NotificationService.sendPromoCoupon).toHaveBeenCalledTimes(1);
+            expect(NotificationService.sendPromoCoupon).toHaveBeenCalledWith(42);
+        });
     });
 
-  });
+    // --- НЕГАТИВНЫЕ СЦЕНАРИИ ---
+    describe('Негативные сценарии', () => {
 
-  // --- НЕГАТИВНЫЕ СЦЕНАРИИ ---
-  describe('Негативные сценарии (Ошибки)', () => {
+        test('Пустая корзина из БД — расчёт не производится и уведомление не отправляется', async () => {
+            CartRepository.getCartPrices.mockResolvedValue([]);
 
-    test('Должна выбросить ошибку, если список цен товаров пуст или не массив', () => {
-      expect(() => calculateCartTotal([], 10))
-        .toThrow('Список товаров пуст');
+            await expect(calculateCartTotal(1, 10))
+                .rejects
+                .toThrow('Список товаров пуст');
 
-      expect(() => calculateCartTotal(null, 10))
-        .toThrow('Список товаров пуст');
+            expect(NotificationService.sendPromoCoupon).not.toHaveBeenCalled();
+        });
+
+        test('Ошибка при отрицательной персональной скидке', async () => {
+            CartRepository.getCartPrices.mockResolvedValue([1000]);
+
+            await expect(calculateCartTotal(1, -5))
+                .rejects
+                .toThrow('Процент скидки не может быть отрицательным');
+        });
+
+        test('Ошибка при отрицательной цене товара', async () => {
+            CartRepository.getCartPrices.mockResolvedValue([1000, -200]);
+
+            await expect(calculateCartTotal(1, 0))
+                .rejects
+                .toThrow('Цена товара не может быть отрицательной');
+        });
     });
 
-    test('Должна выбросить ошибку при отрицательной цене', () => {
-      expect(() => calculateCartTotal([500, -100], 5))
-        .toThrow('Цена товара не может быть отрицательной');
+    // --- ГРАНИЧНЫЕ ЗНАЧЕНИЯ ---
+    describe('Граничные значения', () => {
+
+        test('Сумма ровно 5000 — автоматическая скидка не применяется', async () => {
+            CartRepository.getCartPrices.mockResolvedValue([5000]);
+
+            const result = await calculateCartTotal(1, 0);
+
+            expect(result.total).toBe(5000);
+            expect(NotificationService.sendPromoCoupon).not.toHaveBeenCalled();
+        });
+
+        test('Сумма чуть больше 5000 — применяется автоматическая скидка', async () => {
+            CartRepository.getCartPrices.mockResolvedValue([5001]);
+
+            const result = await calculateCartTotal(1, 0);
+
+            expect(result.total).toBe(4750.95);
+            expect(NotificationService.sendPromoCoupon).not.toHaveBeenCalled();
+        });
+
+        test('Сумма чуть меньше 10 000 — купон не отправляется', async () => {
+            CartRepository.getCartPrices.mockResolvedValue([10526]);
+
+            const result = await calculateCartTotal(7, 0);
+
+            expect(result.total).toBeLessThan(10000);
+            expect(NotificationService.sendPromoCoupon).not.toHaveBeenCalled();
+        });
+
+        test('Отправка купона при сумме чуть больше 10 000 рублей', async () => {
+            CartRepository.getCartPrices.mockResolvedValue([10527]);
+
+            const result = await calculateCartTotal(42, 0);
+
+            expect(result.total).toBeGreaterThan(10000);
+            expect(NotificationService.sendPromoCoupon).toHaveBeenCalledTimes(1);
+            expect(NotificationService.sendPromoCoupon).toHaveBeenCalledWith(42);
+        });
     });
-
-    test('Должна выбросить ошибку при отрицательной персональной скидке', () => {
-      expect(() => calculateCartTotal([500], -10))
-        .toThrow('Процент скидки не может быть отрицательным');
-    });
-
-  });
-
-  // --- ГРАНИЧНЫЕ ЗНАЧЕНИЯ ---
-  describe('Граничные значения', () => {
-
-    test('Должна корректно работать при нулевой персональной скидке', () => {
-      const result = calculateCartTotal([1000], 0);
-      expect(result.total).toBe(1000);
-    });
-
-    test('Должна применить автоскидку при сумме чуть больше 5000', () => {
-      const result = calculateCartTotal([5001], 0);
-      expect(result.total).toBe(4750.95);
-    });
-
-    test('Не должна применять автоскидку при сумме ровно 5000', () => {
-      const result = calculateCartTotal([5000], 0);
-      expect(result.total).toBe(5000);
-    });
-
-  });
-
 });

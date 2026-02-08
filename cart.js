@@ -1,4 +1,9 @@
-function calculateCartTotal(prices, personalDiscountPercent) {
+const CartRepository = require('./cartRepository');
+const NotificationService = require('./notificationService');
+
+async function calculateCartTotal(userId, personalDiscountPercent) {
+    const prices = await CartRepository.getCartPrices(userId);
+
     if (!Array.isArray(prices) || prices.length === 0) {
         throw new Error('Список товаров пуст');
     }
@@ -22,10 +27,14 @@ function calculateCartTotal(prices, personalDiscountPercent) {
         result *= 0.95;
     }
 
+    if (result > 10000) {
+        NotificationService.sendPromoCoupon(userId);
+    }
+
     return {
         status: 'success',
         total: Number(result.toFixed(2))
     };
 }
 
-module.exports = calculateCartTotal;
+module.exports = calculateCartTotal
