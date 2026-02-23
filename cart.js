@@ -1,14 +1,12 @@
-const CartRepository = require('./cartRepository');
 const NotificationService = require('./notificationService');
 
-async function calculateCartTotal(userId, personalDiscountPercent) {
-    const prices = await CartRepository.getCartPrices(userId);
+async function calculateCartTotal({ userId, prices, discount }) {
 
     if (!Array.isArray(prices) || prices.length === 0) {
         throw new Error('Список товаров пуст');
     }
 
-    if (personalDiscountPercent < 0) {
+    if (discount < 0) {
         throw new Error('Процент скидки не может быть отрицательным');
     }
 
@@ -20,7 +18,7 @@ async function calculateCartTotal(userId, personalDiscountPercent) {
     }, 0);
 
     // Персональная скидка
-    let result = total * (1 - personalDiscountPercent / 100);
+    let result = total * (1 - discount / 100);
 
     // Автоматическая скидка 5%
     if (result > 5000) {
@@ -37,4 +35,4 @@ async function calculateCartTotal(userId, personalDiscountPercent) {
     };
 }
 
-module.exports = calculateCartTotal
+module.exports = calculateCartTotal;

@@ -1,13 +1,8 @@
-jest.mock('./cartRepository', () => ({
-    getCartPrices: jest.fn()
-}));
-
 jest.mock('./notificationService', () => ({
     sendPromoCoupon: jest.fn()
 }));
 
 const calculateCartTotal = require('./cart');
-const CartRepository = require('./cartRepository');
 const NotificationService = require('./notificationService');
 
 describe('Функция calculateCartTotal', () => {
@@ -19,10 +14,13 @@ describe('Функция calculateCartTotal', () => {
     // --- ПОЗИТИВНЫЕ СЦЕНАРИИ ---
     describe('Позитивные сценарии', () => {
 
-        test('Корректный расчёт суммы без автоматической скидки и без уведомления', async () => {
-            CartRepository.getCartPrices.mockResolvedValue([500, 100, 100]);
+        test('Корректный расчёт суммы без автоскидки и без купона', async () => {
 
-            const result = await calculateCartTotal(1, 10);
+            const result = await calculateCartTotal({
+                userId: 1,
+                prices: [500,100,100],
+                discount: 10
+            });
 
             expect(result).toEqual({
                 status: 'success',
@@ -32,19 +30,25 @@ describe('Функция calculateCartTotal', () => {
             expect(NotificationService.sendPromoCoupon).not.toHaveBeenCalled();
         });
 
-        test('Применение персональной и автоматической скидок без отправки купона', async () => {
-            CartRepository.getCartPrices.mockResolvedValue([4000, 2000]);
+        test('Применяются обе скидки без отправки купона', async () => {
 
-            const result = await calculateCartTotal(1, 10);
+            const result = await calculateCartTotal({
+                userId: 1,
+                prices: [4000,2000],
+                discount: 10
+            });
 
             expect(result.total).toBe(5130);
             expect(NotificationService.sendPromoCoupon).not.toHaveBeenCalled();
         });
 
-        test('Отправка купона при сумме больше 10 000 рублей', async () => {
-            CartRepository.getCartPrices.mockResolvedValue([6000, 6000]);
+        test('Отправка купона если сумма > 10000', async () => {
 
-            const result = await calculateCartTotal(42, 0);
+            const result = await calculateCartTotal({
+                userId: 42,
+                prices: [6000,6000],
+                discount: 0
+            });
 
             expect(result.total).toBeGreaterThan(10000);
             expect(NotificationService.sendPromoCoupon).toHaveBeenCalledTimes(1);
@@ -53,69 +57,84 @@ describe('Функция calculateCartTotal', () => {
     });
 
     // --- НЕГАТИВНЫЕ СЦЕНАРИИ ---
-    describe('Негативные сценарии', () => {
+    describe('Ошибки', () => {
 
-        test('Пустая корзина из БД — расчёт не производится и уведомление не отправляется', async () => {
-            CartRepository.getCartPrices.mockResolvedValue([]);
+        test('Пустая корзина', async () => {
 
-            await expect(calculateCartTotal(1, 10))
-                .rejects
-                .toThrow('Список товаров пуст');
+            await expect(calculateCartTotal({
+                userId: 1,
+                prices: [],
+                discount: 10
+            })).rejects.toThrow('Список товаров пуст');
 
             expect(NotificationService.sendPromoCoupon).not.toHaveBeenCalled();
         });
 
-        test('Ошибка при отрицательной персональной скидке', async () => {
-            CartRepository.getCartPrices.mockResolvedValue([1000]);
+        test('Отрицательная скидка', async () => {
 
-            await expect(calculateCartTotal(1, -5))
-                .rejects
-                .toThrow('Процент скидки не может быть отрицательным');
+            await expect(calculateCartTotal({
+                userId: 1,
+                prices: [1000],
+                discount: -5
+            })).rejects.toThrow('Процент скидки не может быть отрицательным');
         });
 
-        test('Ошибка при отрицательной цене товара', async () => {
-            CartRepository.getCartPrices.mockResolvedValue([1000, -200]);
+        test('Отрицательная цена', async () => {
 
-            await expect(calculateCartTotal(1, 0))
-                .rejects
-                .toThrow('Цена товара не может быть отрицательной');
+            await expect(calculateCartTotal({
+                userId: 1,
+                prices: [1000,-200],
+                discount: 0
+            })).rejects.toThrow('Цена товара не может быть отрицательной');
         });
     });
 
-    // --- ГРАНИЧНЫЕ ЗНАЧЕНИЯ ---
+    // --- ГРАНИЦЫ ---
     describe('Граничные значения', () => {
 
-        test('Сумма ровно 5000 — автоматическая скидка не применяется', async () => {
-            CartRepository.getCartPrices.mockResolvedValue([5000]);
+        test('Ровно 5000 — без автоскидки', async () => {
 
-            const result = await calculateCartTotal(1, 0);
+            const result = await calculateCartTotal({
+                userId: 1,
+                prices: [5000],
+                discount: 0
+            });
 
             expect(result.total).toBe(5000);
             expect(NotificationService.sendPromoCoupon).not.toHaveBeenCalled();
         });
 
-        test('Сумма чуть больше 5000 — применяется автоматическая скидка', async () => {
-            CartRepository.getCartPrices.mockResolvedValue([5001]);
+        test('Чуть больше 5000 — автоскидка применяется', async () => {
 
-            const result = await calculateCartTotal(1, 0);
+            const result = await calculateCartTotal({
+                userId: 1,
+                prices: [5001],
+                discount: 0
+            });
 
             expect(result.total).toBe(4750.95);
             expect(NotificationService.sendPromoCoupon).not.toHaveBeenCalled();
         });
 
-        test('Сумма чуть меньше 10 000 — купон не отправляется', async () => {
-            CartRepository.getCartPrices.mockResolvedValue([10526]);
+        test('Чуть меньше 10000 — купон НЕ отправляется', async () => {
 
-            const result = await calculateCartTotal(7, 0);
+            const result = await calculateCartTotal({
+                userId: 7,
+                prices: [10526],
+                discount: 0
+            });
 
             expect(result.total).toBeLessThan(10000);
             expect(NotificationService.sendPromoCoupon).not.toHaveBeenCalled();
         });
 
-        test('Отправка купона при сумме чуть больше 10 000 рублей', async () => {
-            CartRepository.getCartPrices.mockResolvedValue([10527]);
+        test('Чуть больше 10000 — купон отправляется', async () => {
 
-            const result = await calculateCartTotal(42, 0);
+            const result = await calculateCartTotal({
+                userId: 42,
+                prices: [10527],
+                discount: 0
+            });
 
             expect(result.total).toBeGreaterThan(10000);
             expect(NotificationService.sendPromoCoupon).toHaveBeenCalledTimes(1);

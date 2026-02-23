@@ -1,5 +1,5 @@
 module.exports = {
     sendPromoCoupon: (userId) => {
-        // реальный код сервиса
+        console.log("Coupon sent to user:", userId);
     }
 };
