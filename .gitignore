@@ -5,6 +5,9 @@ coverage/
 # npm lock-файл
 package-lock.json
 
+# reports
+report.html
+
 # Логи
 npm-debug.log*
 yarn-debug.log*

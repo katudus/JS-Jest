@@ -1,9 +1,9 @@
-jest.mock('./notificationService', () => ({
+jest.mock('../src/notificationService', () => ({
     sendPromoCoupon: jest.fn()
 }));
 
-const calculateCartTotal = require('./cart');
-const NotificationService = require('./notificationService');
+const calculateCartTotal = require('../src/cart');
+const NotificationService = require('../src/notificationService');
 
 describe('Функция calculateCartTotal', () => {
 

@@ -1,5 +1,5 @@
 const express = require('express');
-const calculateCartTotal = require('./cart');
+const calculateCartTotal = require('./src/cart');
 
 const app = express();
 app.use(express.json());
@@ -16,7 +16,7 @@ app.get('/api/status', (req, res) => {
 
 // Получение персональной скидки пользователя
 app.get('/api/users/:id/discount', (req, res) => {
-   const discount = 10; // Имитация БД
+    const discount = 10; // Имитация БД
 
     res.status(200).json({
         userId: Number(req.params.id),
@@ -54,6 +54,12 @@ app.post('/api/cart/checkout', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Сервер запущен: http://localhost:${PORT}`);
-});
+// сервер запускается ТОЛЬКО если файл запущен напрямую
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`Сервер запущен: http://localhost:${PORT}`);
+    });
+}
+
+// экспорт для Supertest и Cucumber
+module.exports = app;
