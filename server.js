@@ -1,8 +1,10 @@
 const express = require('express');
+const path = require('path'); // нужен для корректного пути к папке public
 const calculateCartTotal = require('./src/cart');
 
 const app = express();
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public'))); // говорит серверу раздавать файлы из папки public
 
 const PORT = 3000;
 

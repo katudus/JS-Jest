@@ -1,0 +1,368 @@
+@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&family=Geologica:wght@300;400;500&display=swap');
+
+:root {
+    --bg: #0f0f13;
+    --surface: #18181f;
+    --surface2: #22222c;
+    --border: #2e2e3a;
+    --accent: #7c6dfa;
+    --accent2: #fa6d9a;
+    --green: #4ade80;
+    --text: #e8e8f0;
+    --text-muted: #7a7a96;
+    --radius: 14px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Geologica', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 32px 16px 64px;
+}
+
+.page {
+    max-width: 680px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Шапка страницы */
+.page::before {
+    content: '🛒 Интернет-магазин ATBP';
+    font-family: 'Unbounded', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.5px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+}
+
+/* Секции-шаги */
+.step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    animation: fadeUp 0.4s ease both;
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.step-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.step-num {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    background: rgba(124,109,250,0.12);
+    border: 1px solid rgba(124,109,250,0.3);
+    border-radius: 6px;
+    padding: 4px 8px;
+    white-space: nowrap;
+    margin-top: 2px;
+}
+
+.step-header h2 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.step-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 300;
+}
+
+/* ШАГ 1 — ID */
+.identity-row {
+    display: flex;
+    gap: 10px;
+}
+
+input[type="text"] {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Geologica', sans-serif;
+    font-size: 14px;
+    padding: 12px 16px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+input[type="text"]:focus {
+    border-color: var(--accent);
+}
+
+input[type="text"]::placeholder {
+    color: var(--text-muted);
+}
+
+#applyIdBtn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Geologica', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+    white-space: nowrap;
+}
+
+#applyIdBtn:hover { opacity: 0.85; transform: translateY(-1px); }
+#applyIdBtn:active { transform: translateY(0); }
+
+.discount-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    background: rgba(74,222,128,0.08);
+    border: 1px solid rgba(74,222,128,0.25);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 14px;
+    animation: fadeUp 0.3s ease;
+}
+
+.badge-icon { font-size: 18px; }
+
+.discount-badge strong {
+    color: var(--green);
+    font-weight: 500;
+}
+
+/* ШАГ 2 — Каталог */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+    gap: 12px;
+}
+
+.product-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 12px;
+    text-align: center;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: default;
+}
+
+.product-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+}
+
+.product-emoji {
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+.product-name {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.product-price {
+    font-size: 13px;
+    color: var(--accent2);
+    font-weight: 500;
+    margin-bottom: 12px;
+}
+
+.add-btn {
+    background: rgba(124,109,250,0.15);
+    color: var(--accent);
+    border: 1px solid rgba(124,109,250,0.3);
+    border-radius: 7px;
+    font-family: 'Geologica', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 10px;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.2s, transform 0.15s;
+}
+
+.add-btn:hover {
+    background: rgba(124,109,250,0.3);
+    transform: scale(1.04);
+}
+
+/* ШАГ 3 — Корзина */
+#cartList {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.cart-empty {
+    color: var(--text-muted);
+    font-size: 13px;
+    text-align: center;
+    padding: 20px 0;
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 14px;
+    animation: fadeUp 0.25s ease;
+}
+
+.cart-item-price {
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+/* Итог */
+.summary-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    padding: 5px 0;
+    color: var(--text-muted);
+}
+
+.discount-row { color: var(--text); }
+
+.summary-divider {
+    border-top: 1px solid var(--border);
+    margin: 10px 0;
+}
+
+.total-row {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.green { color: var(--green); }
+
+.coupon-hint {
+    margin-top: 12px;
+    background: rgba(124,109,250,0.1);
+    border: 1px solid rgba(124,109,250,0.25);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #b0a8fc;
+    text-align: center;
+}
+
+/* Кнопка оформить */
+#checkoutBtn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 16px;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    transition: opacity 0.2s, transform 0.15s;
+}
+
+#checkoutBtn:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+#checkoutBtn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* Результат */
+.result-area, .error-area {
+    margin-top: 16px;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    animation: fadeUp 0.3s ease;
+}
+
+.result-area {
+    background: rgba(74,222,128,0.07);
+    border: 1px solid rgba(74,222,128,0.25);
+}
+
+.error-area {
+    background: rgba(250,109,109,0.07);
+    border: 1px solid rgba(250,109,109,0.25);
+    color: #fa9090;
+}
+
+.result-icon, .error-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.result-area h3 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 15px;
+    margin-bottom: 8px;
+    color: var(--green);
+}
+
+.result-area p {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.result-area strong { color: var(--text); }
+
+.coupon-msg {
+    font-size: 15px !important;
+    font-weight: 500;
+    color: #b0a8fc !important;
+    margin-top: 10px !important;
+}
+
+.error-area p { font-size: 14px; }
+
+.hidden { display: none !important; }

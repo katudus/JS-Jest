@@ -1,9 +1,21 @@
 {
-    "scripts": {
-        "test": "jest",
-        "bdd": "cucumber-js --format summary --format html:report.html"
+   "scripts": {
+    "test": "jest",
+    "test:unit": "jest",
+    "bdd": "cucumber-js --format summary --format html:report.html",
+    "test:api": "cucumber-js --format summary --format html:report.html",
+    "test:ui": "npx playwright test",
+    "test:ui:headed": "npx playwright test --headed",
+    "test:ui:debug": "npx playwright test --debug",
+    "test:ui:report": "npx playwright show-report",
+    "test:all": "npm run test:unit && npm run test:api && npm run test:ui",
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "kill": "kill -9 $(lsof -ti :3000) 2>/dev/null || true"
     },
     "devDependencies": {
+        "@playwright/test": "^1.58.2",
+        "@types/node": "^25.5.0",
         "jest": "^30.2.0"
     },
     "dependencies": {

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Корзина</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&family=Geologica:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="page">
+
+        <!-- ШАГ 1: Идентификация -->
+        <section class="step" id="step-identity">
+            <div class="step-header">
+                <span class="step-num">01</span>
+                <div>
+                    <h2>Войдите в аккаунт</h2>
+                    <p class="step-desc">Введите ID, чтобы применить вашу персональную скидку</p>
+                </div>
+            </div>
+            <div class="identity-row">
+                <input type="text" id="userId" placeholder="Введите ID пользователя" autocomplete="off">
+                <button id="applyIdBtn">Применить</button>
+            </div>
+            <div id="discountBadge" class="discount-badge hidden">
+                <span class="badge-icon">🏷️</span>
+                <span id="discountText">Ваша скидка: <strong></strong></span>
+            </div>
+        </section>
+
+        <!-- ШАГ 2: Каталог -->
+        <section class="step" id="step-catalog">
+            <div class="step-header">
+                <span class="step-num">02</span>
+                <div>
+                    <h2>Выберите товары</h2>
+                    <p class="step-desc">Нажмите на карточку, чтобы добавить в корзину</p>
+                </div>
+            </div>
+            <div class="products-grid">
+                <div class="product-card" data-price="150" data-name="Блокнот">
+                    <div class="product-emoji">📓</div>
+                    <div class="product-name">Блокнот</div>
+                    <div class="product-price">150 ₽</div>
+                    <button class="add-btn" data-price="150" data-name="Блокнот">+ В корзину</button>
+                </div>
+                <div class="product-card" data-price="200" data-name="Ручка">
+                    <div class="product-emoji">🖊️</div>
+                    <div class="product-name">Ручка</div>
+                    <div class="product-price">200 ₽</div>
+                    <button class="add-btn" data-price="200" data-name="Ручка">+ В корзину</button>
+                </div>
+                <div class="product-card" data-price="500" data-name="Книга">
+                    <div class="product-emoji">📚</div>
+                    <div class="product-name">Книга</div>
+                    <div class="product-price">500 ₽</div>
+                    <button class="add-btn" data-price="500" data-name="Книга">+ В корзину</button>
+                </div>
+                <div class="product-card" data-price="3000" data-name="Наушники">
+                    <div class="product-emoji">🎧</div>
+                    <div class="product-name">Наушники</div>
+                    <div class="product-price">3 000 ₽</div>
+                    <button class="add-btn" data-price="3000" data-name="Наушники">+ В корзину</button>
+                </div>
+                <div class="product-card" data-price="6000" data-name="Клавиатура">
+                    <div class="product-emoji">⌨️</div>
+                    <div class="product-name">Клавиатура</div>
+                    <div class="product-price">6 000 ₽</div>
+                    <button class="add-btn" data-price="6000" data-name="Клавиатура">+ В корзину</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ШАГ 3: Корзина и итог -->
+        <section class="step" id="step-cart">
+            <div class="step-header">
+                <span class="step-num">03</span>
+                <div>
+                    <h2>Ваша корзина</h2>
+                    <p class="step-desc">Проверьте состав и оформите заказ</p>
+                </div>
+            </div>
+
+            <ul id="cartList">
+                <li class="cart-empty" id="emptyMsg">Корзина пуста — добавьте товары выше</li>
+            </ul>
+
+            <div class="summary-box" id="summaryBox">
+                <div class="summary-row">
+                    <span>Сумма товаров</span>
+                    <span id="rawTotal">0 ₽</span>
+                </div>
+                <div class="summary-row discount-row hidden" id="discountRow">
+                    <span>Персональная скидка (<span id="discountPct">0</span>%)</span>
+                    <span id="discountAmount" class="green">−0 ₽</span>
+                </div>
+                <div class="summary-row discount-row hidden" id="autoDiscountRow">
+                    <span>Автоскидка 5% (сумма &gt; 5 000 ₽)</span>
+                    <span id="autoDiscountAmount" class="green">−0 ₽</span>
+                </div>
+                <div class="summary-divider"></div>
+                <div class="summary-row total-row">
+                    <span>Итого к оплате</span>
+                    <span id="finalTotal">0 ₽</span>
+                </div>
+                <div class="coupon-hint hidden" id="couponHint">
+                    🎉 Сумма превысит 10 000 ₽ — вы получите купон!
+                </div>
+            </div>
+
+            <button id="checkoutBtn" disabled>Оформить заказ</button>
+
+            <div id="resultArea" class="result-area hidden">
+                <div class="result-icon">✅</div>
+                <h3>Заказ оформлен!</h3>
+                <p>Итоговая сумма: <strong id="totalResult"></strong> ₽</p>
+                <p id="couponMsg" class="coupon-msg"></p>
+            </div>
+
+            <div id="errorArea" class="error-area hidden">
+                <div class="error-icon">⚠️</div>
+                <p id="errorMsg"></p>
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
