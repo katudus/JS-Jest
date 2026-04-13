@@ -1,9 +1,7 @@
 # Node.js зависимости
 node_modules/
 coverage/
-
-# npm lock-файл
-package-lock.json
+allure-results/
 
 # reports
 report.html
